@@ -1,0 +1,11 @@
+{
+  "name": "hackathonapi",
+  "version": "0.0.1",
+  "description": "Api Hackathon Groupe13",
+  "main": "index.js",
+  "scripts": {
+    "dev": "node index.js"
+  },
+  "author": "Gaspard Cabecas Segura",
+  "license": "ISC"
+}
