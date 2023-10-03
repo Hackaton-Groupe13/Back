@@ -1,13 +1,19 @@
 
 const express = require('express');
 const mongoose = require('mongoose');
+const multer = require('multer');
 const { Nplp, BlindTest, Photo, Emoji } = require('./hackathonModel.js');
+const path = require('path');
+const cors = require('cors');
 
 
 const app = express();
 app.use(express.json());
 const PORT = 8080;
 const IP = '149.202.40.232';
+
+app.use(cors()); 
+app.use(express.json());
 
 mongoose.connect('mongodb://localhost:27017/soundle', {
     useNewUrlParser: true,
@@ -19,6 +25,31 @@ mongoose.connect('mongodb://localhost:27017/soundle', {
 .catch((error) => {
     console.error('Error connecting to the database:', error);
 });
+
+
+const storage = multer.diskStorage({
+    destination: './uploads/',
+    filename: (req, file, cb) => {
+        cb(null, Date.now() + path.extname(file.originalname));
+    }
+});
+
+
+const upload = multer({
+    storage: storage,
+    fileFilter: (req, file, cb) => {
+        const allowedTypes = /mp3/;
+        const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+        const mimetype = allowedTypes.test(file.mimetype);
+
+        if (mimetype && extname) {
+            return cb(null, true);
+        } else {
+            cb(new Error('Only .mp3 files are allowed!'));
+        }
+    }
+});
+
 
 app.listen(
     PORT,
@@ -93,4 +124,27 @@ app.delete('/api/emoji/:id', async (req, res) => {
     const { id } = req.params;
     await Emoji.findByIdAndDelete(id);
     res.json({ message: 'Deleted' });
+});
+
+app.get('/getmp3', (req, res) => {
+    const filePath = path.join(__dirname, 'uploads', 'sample.mp3');
+    res.setHeader('Content-Type', 'audio/mpeg');
+    res.sendFile(filePath);
+});
+
+app.get('/api/blindtest/:id', async (req, res) => {
+    try {
+        const blindTest = await BlindTest.findById(req.params.id);
+        if (!blindTest) {
+            return res.status(404).send('Entry not found');
+        }
+
+        const filePath = path.join(__dirname, 'uploads', blindTest.son + '.mp3');
+        res.setHeader('Content-Type', 'audio/mpeg');
+        return res.sendFile(filePath);
+
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).send('Server Error');
+    }
 });

@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-// Schema Definitions
+
 const NplpSchema = new mongoose.Schema({
     phrase: {
         type: String,
@@ -20,6 +20,7 @@ const NplpSchema = new mongoose.Schema({
     }
 });
 
+
 const BlindTestSchema = new mongoose.Schema({
     son: {
         type: String,
@@ -30,6 +31,7 @@ const BlindTestSchema = new mongoose.Schema({
         required: true
     }
 });
+
 
 const PhotoSchema = new mongoose.Schema({
     photo: {
@@ -42,6 +44,7 @@ const PhotoSchema = new mongoose.Schema({
     }
 });
 
+
 const EmojiSchema = new mongoose.Schema({
     emoji: {
         type: String,
@@ -53,10 +56,12 @@ const EmojiSchema = new mongoose.Schema({
     }
 });
 
+
 const Nplp = mongoose.model('Nplp', NplpSchema);
 const BlindTest = mongoose.model('BlindTest', BlindTestSchema);
 const Photo = mongoose.model('Photo', PhotoSchema);
 const Emoji = mongoose.model('Emoji', EmojiSchema);
+
 
 module.exports = {
     Nplp,
