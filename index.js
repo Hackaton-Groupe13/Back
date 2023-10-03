@@ -5,6 +5,7 @@ const multer = require('multer');
 const { Nplp, BlindTest, Photo, Emoji } = require('./hackathonModel.js');
 const path = require('path');
 const cors = require('cors');
+const { CronJob } = require('cron');
 
 
 const app = express();
@@ -12,8 +13,22 @@ app.use(express.json());
 const PORT = 8080;
 const IP = '149.202.40.232';
 
+
 app.use(cors()); 
 app.use(express.json());
+
+
+let historiqueNplp = [];
+let historiqueBlindTest = [];
+let historiquePhoto = [];
+let historiqueEmoji = [];
+
+let UwU = {
+    nplp: "",
+    blindTest: "",
+    photo: "",
+    emoji: "",
+};
 
 mongoose.connect('mongodb://localhost:27017/soundle', {
     useNewUrlParser: true,
@@ -132,7 +147,7 @@ app.get('/getmp3', (req, res) => {
     res.sendFile(filePath);
 });
 
-app.get('/api/blindtest/:id', async (req, res) => {
+app.get('/api/getsound/:id', async (req, res) => {
     try {
         const blindTest = await BlindTest.findById(req.params.id);
         if (!blindTest) {
@@ -147,4 +162,63 @@ app.get('/api/blindtest/:id', async (req, res) => {
         console.error('Error:', error);
         res.status(500).send('Server Error');
     }
+});
+
+const job = new CronJob('0 0 * * *', function() { // minute puis heure
+    tacheAMinuit();
+}, null, true, 'Europe/Paris');
+job.start();
+
+function choixAleatoireExcluantHistorique(liste, historique) {
+    let choix = null;
+
+
+    do {
+        const indexAleatoire = Math.floor(Math.random() * liste.length);
+        choix = liste[indexAleatoire];
+    } while (historique.includes(choix));
+
+
+    historique.push(choix);
+    if (historique.length > 7) {
+        historique.shift();
+    }
+
+    return choix;
+}
+
+async function tacheAMinuit() {
+    console.log('Tâche à minuit');
+
+    const nplp = await Nplp.find();
+    const choixNplp = choixAleatoireExcluantHistorique(nplp, historiqueNplp);
+
+    const blindTest = await BlindTest.find();
+    const choixBlindTest = choixAleatoireExcluantHistorique(blindTest, historiqueBlindTest);
+
+    const photo = await Photo.find();
+    const choixPhoto = choixAleatoireExcluantHistorique(photo, historiquePhoto);
+
+    const emoji = await Emoji.find();
+    const choixEmoji = choixAleatoireExcluantHistorique(emoji, historiqueEmoji);
+
+    console.log('Choix Nplp:', choixNplp);
+    console.log('Choix BlindTest:', choixBlindTest);
+    console.log('Choix Photo:', choixPhoto);
+    console.log('Choix Emoji:', choixEmoji);
+
+
+    
+    choixNplp.son = "http://149.202.40.232:8080/api/getsound/" + choixNplp._id;
+    choixBlindTest.son = "http://149.202.40.232:8080/api/getsound/" + choixBlindTest._id;
+
+
+    UwU.nplp = choixNplp;
+    UwU.blindTest = choixBlindTest;
+    UwU.photo = choixPhoto;
+    UwU.emoji = choixEmoji;
+}
+
+app.get('/api/info', async (req, res) => {
+    res.json(UwU);
 });
