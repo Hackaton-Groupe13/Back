@@ -36,6 +36,7 @@ mongoose.connect('mongodb://localhost:27017/soundle', {
 })
 .then(() => {
     console.log('Connected to the database');
+    tacheAMinuit();
 })
 .catch((error) => {
     console.error('Error connecting to the database:', error);
@@ -202,15 +203,15 @@ async function tacheAMinuit() {
     const emoji = await Emoji.find();
     const choixEmoji = choixAleatoireExcluantHistorique(emoji, historiqueEmoji);
 
-    console.log('Choix Nplp:', choixNplp);
-    console.log('Choix BlindTest:', choixBlindTest);
-    console.log('Choix Photo:', choixPhoto);
-    console.log('Choix Emoji:', choixEmoji);
+    // console.log('Choix Nplp:', choixNplp);
+    // console.log('Choix BlindTest:', choixBlindTest);
+    // console.log('Choix Photo:', choixPhoto);
+    // console.log('Choix Emoji:', choixEmoji);
 
 
     
-    choixNplp.son = "http://149.202.40.232:8080/api/getsound/" + choixNplp._id;
-    choixBlindTest.son = "http://149.202.40.232:8080/api/getsound/" + choixBlindTest._id;
+    //choixNplp.son = "http://149.202.40.232:8080/api/getsound/" + choixNplp.id;
+    choixBlindTest.son = "http://149.202.40.232:8080/api/getsound/" + choixBlindTest.id;
 
 
     UwU.nplp = choixNplp;
